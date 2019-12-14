@@ -86,7 +86,13 @@ async function orderSearch(ctx) {
         sign,
         //sign_type
     };
-
+    if (transaction_id) {
+        requestData = Object.assign(requestData, { transaction_id: transaction_id })
+    } else if (out_trade_no) {
+        requestData = Object.assign(requestData, { out_trade_no: out_trade_no })
+    } else {
+        throw new error("缺少必要参数")
+    }
     try {
         let res = await req(url, requestData)
 
@@ -159,11 +165,12 @@ async function refund(ctx) {
         // refund_account, //退款资金来源
         // notify_url //退款结果通知url
     }
+    //二选一 参数
     if (out_refund_no) {
-        requestData = Object.assign(requestData, out_refund_no)
+        requestData = Object.assign(requestData, { out_refund_no: out_refund_no })
         console.log(requestData);
     } else if (transaction_id) {
-        requestData = Object.assign(requestData, transaction_id)
+        requestData = Object.assign(requestData, { transaction_id: transaction_id })
         console.log(transaction_id);
     } else {
         throw new error("缺少必要参数")
@@ -189,7 +196,7 @@ async function refundSearch(ctx) {
     //签名
     TODO: 签名算法参数还需修改
     let sign = signData.paysignjsapi(appid, body, mch_id, nonce_str, notify_url, out_trade_no, spbill_create_ip, total_fee, trade_type);
-    
+
     let requestData = {
         appid,
         mch_id,
@@ -199,13 +206,13 @@ async function refundSearch(ctx) {
     };
     // 四个参数选择一个
     if (out_trade_no) {
-        requestData = Object.assign(requestData, out_trade_no)
+        requestData = Object.assign(requestData, { out_trade_no: out_trade_no })
     } else if (transaction_id) {
-        requestData = Object.assign(requestData, transaction_id)
+        requestData = Object.assign(requestData, { transaction_id: transaction_id })
     } else if (out_refund_no) {
-        requestData = Object.assign(requestData, out_refund_no)
+        requestData = Object.assign(requestData, { out_refund_no: out_refund_no })
     } else if (refund_id) {
-        requestData = Object.assign(requestData, refund_id)
+        requestData = Object.assign(requestData, { refund_id: refund_id })
     } else {
         throw new error("参数错误")
     }
