@@ -144,15 +144,13 @@ async function orderClose(ctx) {
  */
 async function refund(ctx) {
     let url = "https://api.mch.weixin.qq.com/secapi/pay/refund";
-    TODO: //out_trade_no  transaction_id 二选一
+
     let requestData = {
         appid,
         mch_id,
         nonce_str,
         sign,
-        // sign_type,
-        out_trade_no,
-        transaction_id,
+        // sign_type,        
         out_refund_no,
         total_fee,
         refund_fee,
@@ -161,6 +159,16 @@ async function refund(ctx) {
         // refund_account, //退款资金来源
         // notify_url //退款结果通知url
     }
+    if (out_refund_no) {
+        requestData = Object.assign(requestData, out_refund_no)
+        console.log(requestData);
+    } else if (transaction_id) {
+        requestData = Object.assign(requestData, transaction_id)
+        console.log(transaction_id);
+    } else {
+        throw new error("缺少必要参数")
+    }
+
     try {
         let res = await req(url, requestData)
 
@@ -177,22 +185,31 @@ async function refund(ctx) {
 async function refundSearch(ctx) {
     let url = "https://api.mch.weixin.qq.com/pay/refundquery";
 
-    TODO: 四选一
-    if (transaction_id || out_trade_no || out_refund_no || refund_id) {
-
-    }
-
+    let { out_trade_no, transaction_id, out_refund_no, refund_id } = ctx.request.body;
+    //签名
+    TODO: 签名算法参数还需修改
+    let sign = signData.paysignjsapi(appid, body, mch_id, nonce_str, notify_url, out_trade_no, spbill_create_ip, total_fee, trade_type);
+    
     let requestData = {
         appid,
         mch_id,
         nonce_str,
         sign,
-        transaction_id, //微信订单号
-        out_trade_no,   //商户订单号
-        out_refund_no,  //商户退款单号
-        refund_id       //微信退款单号
         // offset  //偏移量
     };
+    // 四个参数选择一个
+    if (out_trade_no) {
+        requestData = Object.assign(requestData, out_trade_no)
+    } else if (transaction_id) {
+        requestData = Object.assign(requestData, transaction_id)
+    } else if (out_refund_no) {
+        requestData = Object.assign(requestData, out_refund_no)
+    } else if (refund_id) {
+        requestData = Object.assign(requestData, refund_id)
+    } else {
+        throw new error("参数错误")
+    }
+
 
     try {
         let res = await req(url, requestData)

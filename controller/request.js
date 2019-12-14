@@ -19,10 +19,10 @@ async function Myrequest(url, json) {
             "Content-Type": "json/x-www-form-urlencoded;charset=utf-8"
         },
         data: data
-    }.catch(e => {
+    }).catch(e => {
         console.log(e);
         throw new error(e)
-    }));
+    });
 
     if (res) {
         console.log(res);

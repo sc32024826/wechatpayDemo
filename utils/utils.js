@@ -1,4 +1,3 @@
-const xmlreader = require('xmlreader')
 const fs = require('fs')
 const config = require('../config/wechat')
 const crypto = require('crypto')
@@ -20,27 +19,24 @@ const wxpay = {
     },
 
     //签名加密算法
-    paysignjsapi: function (appid, body, mch_id, nonce_str, notify_url, out_trade_no, spbill_create_ip, total_fee, trade_type) {
-        let ret = {
-            appid: appid,
-            mch_id: mch_id,             //商户ID
-            nonce_str: nonce_str,       //随机字符串 
-            body: body,                 //商品描述
-            notify_url: notify_url,     //支付结果通知地址
-            out_trade_no: out_trade_no, //商户订单号
-            spbill_create_ip: spbill_create_ip, //终端IP
-            total_fee: total_fee,       //标价金额 订单总金额
-            trade_type: trade_type      //交易类型
-        }
+    paysignjsapi: function (ret) {
 
-        let list = [...ret].filter(([k, v]) => k !== 'sign' && v)
+        // let list = [...ret].filter(([k, v]) => k !== 'sign' && v)
+        let list = [];
+        for (let i in ret) {
+            let s = i + "=" + ret[i]
+            list.push(s);
+        }
+        console.log(list);
+        
         //按照ASCII 码排序
         list.sort()
         //用&拼接
-        let paramsString = list.map(([k, v]) => `${k}=${v}`).join('&')
-
+        let paramsString = list.join('&')
+        console.log(paramsString);
+        
         //读取 私钥
-        let privateKey = fs.readFileSync(config.PRIVATEKEY, 'utf-8')
+        let privateKey = fs.readFileSync(config.PRIVATEKEY_PATH, 'utf-8')
 
         let stringSignTemp = paramsString.join('&key=' + privateKey)
 
